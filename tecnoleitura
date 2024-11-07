@@ -1,0 +1,196 @@
+import os
+
+os.system('cls')
+
+# Definindo uma lista simples de livros
+books = [
+    {"title": "Python ", "price": 29.99},
+    {"title": "Networking ", "price": 24.99},
+    {"title": "JS ", "price": 34.99},
+    {"title": "Hardware ", "price": 34.99},
+    {"title": "Programação ", "price": 65.99},
+    {"title": "Iniciante py ", "price": 55.99},
+]
+
+cart = []  # Lista para armazenar livros que o usuário adiciona ao carrinho
+
+# Cores para formatação
+GREEN = "\033[92m"  # Verde
+RED = "\033[91m"    # Vermelho
+BLUE = "\033[94m"   # Azul
+PURPLE = "\033[95m" # Roxo
+LIGHT_BLUE = "\033[38;2;114;171;223m"  # RGB (114, 171, 223) para #72ABDF
+RESET = "\033[0m"   # Resetar para a cor padrão
+
+# Função para mostrar os livros disponíveis
+def show_books():
+    print("\nLivros Disponíveis:")
+    print(f"{PURPLE + 'Número':<10} {'Título':<30} {BLUE + 'Preço':>10}" + RESET)  # Títulos em roxo e preços em azul
+    print("-" * 50)  # Linha separadora
+    for idx, book in enumerate(books, start=1):
+        print(f"{PURPLE + str(idx):<10} {book['title']:<30} {BLUE + '${:,.2f}'.format(book['price']):>10}" + RESET)
+    print()
+
+# Função para buscar livros pelo nome
+def search_book():
+    query = input("Digite o título do livro para buscar: ").lower()
+    found_books = [book for book in books if query in book["title"].lower()]
+    
+    if found_books:
+        print("\nResultados da Busca:")
+        print(f"{'Título':<30} {'Preço':>10}")
+        print("-" * 40)
+        for book in found_books:
+            print(f"{book['title']:<30} ${book['price']:>9.2f}")
+    else:
+        print(RED + "Nenhum livro encontrado." + RESET)
+    print()
+
+# Função para adicionar múltiplos livros ao carrinho
+def add_to_cart():
+    show_books()
+    choices = input("Digite os números dos livros para adicionar ao carrinho (separados por espaço): ")
+    book_numbers = choices.split()  # Divide a entrada em uma lista de números
+    
+    for choice in book_numbers:
+        try:
+            index = int(choice) - 1  # Converte a escolha para um índice da lista
+            if 0 <= index < len(books):
+                cart.append(books[index])
+                print(GREEN + f"{books[index]['title']} adicionado ao carrinho." + RESET)
+            else:
+                print(RED + f"Escolha inválida: {choice}" + RESET)
+        except ValueError:
+            print(RED + f"Entrada inválida: {choice}. Por favor, digite números válidos." + RESET)
+    print()
+
+# Função para mostrar os itens no carrinho
+def show_cart():
+    if cart:
+        print("\nItens no carrinho:")
+        print(f"{PURPLE + 'Número':<10} {'Título':<30} {BLUE + 'Preço':>10}" + RESET)  # Títulos em roxo e preços em azul
+        print("-" * 40)
+        for idx, item in enumerate(cart, start=1):
+            print(f"{PURPLE + str(idx):<10} {item['title']:<30} {BLUE + '${:,.2f}'.format(item['price']):>10}" + RESET)
+        total = sum(item['price'] for item in cart)
+        print(GREEN + f"Total: ${total:.2f}" + RESET)  # Total em verde
+    else:
+        print(RED + "O carrinho está vazio :(" + RESET)  # Mensagem em vermelho se o carrinho estiver vazio
+    print()
+
+# Função para remover múltiplos itens do carrinho
+def remove_from_cart():
+    show_cart()
+    choices = input("Digite os números dos itens para remover do carrinho (separados por espaço): ")
+    item_numbers = sorted(set(map(int, choices.split())), reverse=True)  # Ordena em ordem decrescente para evitar erros de índice
+
+    for choice in item_numbers:
+        if 1 <= choice <= len(cart):
+            removed_item = cart.pop(choice - 1)
+            print(RED + f"{removed_item['title']} removido do carrinho." + RESET)
+        else:
+            print(RED + f"Escolha inválida: {choice}" + RESET)
+    print()
+
+# Função para pagamento
+def payment():
+    if not cart:
+        print(RED + "O carrinho está vazio. Adicione itens antes de realizar o pagamento." + RESET)
+        return
+    
+    total = sum(item['price'] for item in cart)
+    print(GREEN+ f"Total a pagar: ${total:.2f}" + RESET)
+    print("Escolha a forma de pagamento:")
+    print("1. Pix")
+    print("2. Cartão de Crédito/Débito")
+    
+    payment_method = input("Digite a opção de pagamento: ")
+    
+    if payment_method == '1':
+        pix_key = input("Digite a chave Pix (email, CPF, ou telefone): ")
+        if pix_key:
+            print(GREEN + f"Pagamento de ${total:.2f} realizado com sucesso via Pix. Chave Pix usada: {pix_key}." + RESET)
+            cart.clear()
+        else:
+            print(RED + "Chave Pix inválida. Tente novamente." + RESET)
+    
+    elif payment_method == '2':
+        card_number = input("Digite o número do cartão (6 dígitos): ")
+        if len(card_number) != 6 or not card_number.isdigit():
+            print(RED + "Número do cartão inválido. Deve ter 6 dígitos." + RESET)
+            return
+        
+        card_expiry = input("Digite a data de validade do cartão (MM/AA): ")
+        if len(card_expiry) != 4 or not card_expiry.isdigit():
+            print(RED + "Data de validade inválida. Deve ter 4 dígitos (MMAA)." + RESET)
+            return
+        
+        card_cvc = input("Digite o código de segurança (CVC) (3 dígitos): ")
+        if len(card_cvc) != 3 or not card_cvc.isdigit():
+            print(RED + "Código de segurança inválido. Deve ter 3 dígitos." + RESET)
+            return
+        
+        print(GREEN + f"Pagamento de ${total:.2f} realizado com sucesso via Cartão." + RESET)
+        cart.clear()
+    
+    else:
+        print(RED + "Opção de pagamento inválida." + RESET)
+    
+    print()
+
+# Função para exibir o menu principal
+def show_main_menu():
+    print(LIGHT_BLUE + "Menu Principal:" + RESET)
+    print(LIGHT_BLUE + "1. Mostrar Livros" + RESET)
+    print(LIGHT_BLUE + "2. Buscar Livro" + RESET)
+    print(LIGHT_BLUE + "3. Adicionar ao Carrinho" + RESET)
+    print(LIGHT_BLUE + "4. Mostrar Carrinho" + RESET)
+    print(LIGHT_BLUE + "5. Remover do Carrinho" + RESET)
+    print(LIGHT_BLUE + "6. Realizar Pagamento" + RESET)
+    print(LIGHT_BLUE + "7. Sair" + RESET)
+
+# Função para permitir que o usuário peça o menu principal ou encerre o programa
+def request_main_menu():
+    while True:
+        user_input = input("Digite 'menu' para voltar ao menu principal ou 'sair' para encerrar: ").lower()
+        if user_input == 'menu':
+            return  # Retorna para o loop principal
+        elif user_input == 'sair':
+            print(GREEN + "Saindo do sistema. Obrigado! :)" + RESET)
+            exit()  # Encerra o programa
+        else:
+            print(RED + "Entrada inválida. Tente novamente." + RESET)
+
+# Menu principal para o usuário interagir com o sistema
+def main():
+    while True:
+        show_main_menu()
+        choice = input(LIGHT_BLUE + "\nEscolha uma opção: " + RESET)  # Opção em cor definida
+        
+        if choice == '1':
+            show_books()
+            request_main_menu()  # Permite que o usuário volte ao menu principal ou encerre
+        elif choice == '2':
+            search_book()
+            request_main_menu()  # Permite que o usuário volte ao menu principal ou encerre
+        elif choice == '3':
+            add_to_cart()
+            request_main_menu()  # Permite que o usuário volte ao menu principal ou encerre
+        elif choice == '4':
+            show_cart()
+            request_main_menu()  # Permite que o usuário volte ao menu principal ou encerre
+        elif choice == '5':
+            remove_from_cart()
+            request_main_menu()  # Permite que o usuário volte ao menu principal ou encerre
+        elif choice == '6':
+            payment()
+            request_main_menu()  # Permite que o usuário volte ao menu principal ou encerre
+        elif choice == '7':
+            print("Saindo do sistema. Obrigado!")
+            break
+        else:
+            print(RED + "Escolha inválida. Tente novamente." + RESET)
+
+# Correção na verificação da condição para rodar o script principal
+if __name__ == "__main__":
+    main()
