@@ -1,4 +1,6 @@
 import os
+import random
+import time
 
 os.system('cls')
 
@@ -99,7 +101,7 @@ def payment():
         return
     
     total = sum(item['price'] for item in cart)
-    print(GREEN+ f"Total a pagar: ${total:.2f}" + RESET)
+    print(GREEN + f"Total a pagar: ${total:.2f}" + RESET)
     print("Escolha a forma de pagamento:")
     print("1. Pix")
     print("2. Cartão de Crédito/Débito")
@@ -107,12 +109,13 @@ def payment():
     payment_method = input("Digite a opção de pagamento: ")
     
     if payment_method == '1':
-        pix_key = input("Digite a chave Pix (email, CPF, ou telefone): ")
-        if pix_key:
-            print(GREEN + f"Pagamento de ${total:.2f} realizado com sucesso via Pix. Chave Pix usada: {pix_key}." + RESET)
-            cart.clear()
-        else:
-            print(RED + "Chave Pix inválida. Tente novamente." + RESET)
+        # Gerando uma chave Pix aleatória fictícia
+        pix_key = "key" + str(random.randint(1000000000, 9999999999))  # Gera um número aleatório de 10 dígitos
+        
+        print(f"\nGerando chave Pix... {pix_key} (copie e cole no app do seu banco)")
+        time.sleep(3)  # Simula um atraso de 3 segundos
+        print(GREEN + f"Pagamento de ${total:.2f} realizado com sucesso via Pix. Chave Pix: {pix_key}." + RESET)
+        cart.clear()  # Limpa o carrinho após o pagamento
     
     elif payment_method == '2':
         card_number = input("Digite o número do cartão (6 dígitos): ")
@@ -131,7 +134,7 @@ def payment():
             return
         
         print(GREEN + f"Pagamento de ${total:.2f} realizado com sucesso via Cartão." + RESET)
-        cart.clear()
+        cart.clear()  # Limpa o carrinho após o pagamento
     
     else:
         print(RED + "Opção de pagamento inválida." + RESET)
